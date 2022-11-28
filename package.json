@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "tsnd --respawn --transpile-only --exit-child src/app.ts",
+    "dev": "tsnd --respawn --transpile-only --exit-child -r tsconfig-paths/register src/libs/server/app.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -14,6 +14,7 @@
     "@types/node": "^18.11.9",
     "prettier": "2.8.0",
     "ts-node-dev": "^2.0.0",
+    "tsconfig-paths": "^4.1.0",
     "typescript": "^4.9.3"
   },
   "dependencies": {
