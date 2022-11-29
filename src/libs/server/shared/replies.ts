@@ -5,5 +5,25 @@ export const badRequestWithMessage = (reply: FastifyReply) => (e: Error) => {
 }
 
 export const idNotFound = (reply: FastifyReply) => (id: string) => {
-  reply.code(404).send({ mes: `id ${id} not found` })
+  reply.code(404).send()
 }
+
+export const replyOk =
+  <T>(reply: FastifyReply) =>
+  (payload: T) => {
+    reply.code(200).send(payload)
+  }
+
+export const replyOkWithMessage =
+  <T>(reply: FastifyReply, message: string) =>
+  (payload?: T) => {
+    console.log("waaaa")
+
+    reply.code(200).send({ message })
+  }
+
+export const replyCreated =
+  <T>(reply: FastifyReply) =>
+  (payload: T) => {
+    reply.code(201).send(payload)
+  }

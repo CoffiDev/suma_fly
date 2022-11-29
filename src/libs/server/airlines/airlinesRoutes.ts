@@ -1,17 +1,22 @@
 import { FastifyInstance } from "fastify"
 
-import {
-  deleteAirline,
-  getAirlines,
-  postAirline,
-  putAirline,
-} from "./airlinesControllers"
+import { airlinesControllers } from "./airlinesControllers"
+import { buildAirlinesModule } from "@/modules/airlines"
 
-async function airlinesRoutes(server: FastifyInstance) {
-  server.get("/", getAirlines)
-  server.post("/", postAirline)
-  server.delete("/:id", deleteAirline)
-  server.put("/:id", putAirline)
+export const airlinesRoutes = (
+  airlinesModule: ReturnType<typeof buildAirlinesModule>
+) => {
+  const controllers = airlinesControllers(airlinesModule)
+
+  return async function airlinesRoutes(server: FastifyInstance) {
+    server.get("/healthcheck", async function () {
+      return { status: "ok" }
+    })
+
+    server.delete("/:id", controllers.deleteAirline)
+    server.put("/:id", controllers.putAirline)
+
+    server.get("/", controllers.getAirlines)
+    server.post("/", controllers.postAirline)
+  }
 }
-
-export default airlinesRoutes

@@ -1,20 +1,18 @@
-import buildServer from "./server"
+import baseApp from "@/libs/server/shared/baseApp"
+import { airlinesRoutes } from "./airlines/airlinesRoutes"
+import { buildAirlinesModule } from "@/modules/airlines"
+import { airlinesServices } from "@/libs/server/airlines/airlinesServices"
 
-const PORT = 3000
+export function buildApp() {
+  const app = baseApp()
 
-const HOST = "0.0.0.0"
+  app.get("/healthcheck", async function () {
+    return { status: "ok" }
+  })
 
-const server = buildServer()
+  const airlinesModule = buildAirlinesModule(airlinesServices)
+  const airlinesPlugin = airlinesRoutes(airlinesModule)
+  app.register(airlinesPlugin, { prefix: "/api/airlines" })
 
-async function main() {
-  try {
-    await server.listen(PORT, HOST)
-
-    console.log(`Server ready at http://${HOST}:${PORT}`)
-  } catch (e) {
-    console.error(e)
-    process.exit(1)
-  }
+  return app
 }
-
-main()

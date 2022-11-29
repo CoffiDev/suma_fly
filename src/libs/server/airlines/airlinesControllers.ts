@@ -1,100 +1,61 @@
 import { FastifyReply, FastifyRequest } from "fastify"
+
+import { Airline, NewAirline } from "@/modules/airlines/types"
 import {
-  listAirlines,
-  addAirline,
-  deleteAirlines,
-  updateAirline,
-  type ListAirlinesInterface,
-  type AddAirlinesInterface,
-  type DeleteAirlineInterface,
-  type UpdateAirlineInterface,
-} from "@/modules/airlines"
-import { Airline } from "@/modules/airlines/types"
-import { badRequestWithMessage } from "@/libs/server/shared/replies"
+  badRequestWithMessage,
+  replyCreated,
+  replyOk,
+  replyOkWithMessage,
+} from "@/libs/server/shared/replies"
 import { idNotFound } from "@/libs/server/shared/replies"
+import { buildAirlinesModule } from "@/modules/airlines"
 
-const airlines: Airline[] = [
-  {
-    id: "1",
-    iata_code: "UA",
-    airline: "United Air Lines Inc.",
-  },
-]
-
-export const getAirlines = async (req: FastifyRequest, reply: FastifyReply) => {
-  const deps: ListAirlinesInterface = {
-    onSuccess: (airlines) => {
-      reply.send(airlines)
-    },
-    onError: badRequestWithMessage(reply),
-    queryAirlines: async () => {
-      return airlines
-    },
-  }
-
-  listAirlines(deps)
-}
-
-export const postAirline = async (req: FastifyRequest, reply: FastifyReply) => {
-  const deps: AddAirlinesInterface = {
-    onSuccess: (airlines) => {
-      reply.code(201).send(airlines)
-    },
-    onError: badRequestWithMessage(reply),
-    createAirline: async (airline) => {
-      const id = Math.random().toString()
-      const n = { ...airline, id }
-      airlines.push(n)
-      return n
-    },
-  }
-
-  addAirline(deps, req.body as any)
-}
-
-export const deleteAirline = async (
-  req: FastifyRequest,
-  reply: FastifyReply
+export const airlinesControllers = (
+  airlinesModule: ReturnType<typeof buildAirlinesModule>
 ) => {
-  const deps: DeleteAirlineInterface = {
-    onSuccess: () => {
-      reply.code(200)
-    },
-    onError: badRequestWithMessage(reply),
-    onNotFound: idNotFound(reply),
-    removeAirline: async (id) => {
-      const a = airlines.findIndex(({ id: aid }) => id === aid)
-
-      if (a < 0) {
-        return { found: false }
-      } else {
-        airlines.splice(a, 1)
-        return { found: true }
-      }
-    },
+  const getAirlines = (req: FastifyRequest, reply: FastifyReply) => {
+    airlinesModule.listAirlines({
+      payload: {},
+      onSuccess: replyOk(reply),
+      onError: badRequestWithMessage(reply),
+    })
   }
 
-  deleteAirlines(deps, (req.params as any).id)
-}
-
-export const putAirline = async (req: FastifyRequest, reply: FastifyReply) => {
-  const deps: UpdateAirlineInterface = {
-    onSuccess: (airline) => {
-      reply.code(200).send({ message: "updated", update: airline })
-    },
-    onError: badRequestWithMessage(reply),
-    onNotFound: idNotFound(reply),
-    changeAirline: async ({ id, update: airline }) => {
-      const a = airlines.findIndex(({ id: aid }) => id === aid)
-
-      if (a < 0) {
-        return { found: false, airline }
-      } else {
-        airlines[a] = { ...airlines[a], ...airline }
-        return { found: true, airline }
-      }
-    },
+  const postAirline = (req: FastifyRequest, reply: FastifyReply) => {
+    airlinesModule.addAirline({
+      payload: {
+        newAirline: req.body as NewAirline,
+      },
+      onSuccess: replyCreated(reply),
+      onError: badRequestWithMessage(reply),
+    })
   }
 
-  updateAirline(deps, { update: req.body as any, id: (req.params as any).id })
+  const deleteAirline = (req: FastifyRequest, reply: FastifyReply) => {
+    airlinesModule.deleteAirline({
+      payload: { id: (req.params as any).id },
+      onSuccess: replyOkWithMessage(reply, "deleted"),
+      onError: badRequestWithMessage(reply),
+      onNotFound: idNotFound(reply),
+    })
+  }
+
+  const putAirline = (req: FastifyRequest, reply: FastifyReply) => {
+    airlinesModule.updateAirline({
+      payload: {
+        id: (req.params as any).id,
+        update: req.body as Airline,
+      },
+      onSuccess: replyOkWithMessage(reply, "updated"),
+      onError: badRequestWithMessage(reply),
+      onNotFound: idNotFound(reply),
+    })
+  }
+
+  return {
+    getAirlines,
+    postAirline,
+    deleteAirline,
+    putAirline,
+  }
 }
