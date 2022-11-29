@@ -1,14 +1,8 @@
-import {
-  AddAirlinesInterface,
-  DeleteAirlineInterface,
-  ListAirlinesInterface,
-  UpdateAirlineInterface,
-} from "@/modules/airlines/moduleInterface"
 import { AirlinesServicesInterface } from "@/modules/airlines/servicesInterface"
 import { Airline, AirlineId, NewAirline } from "@/modules/airlines/types"
 
 export const buildAirlinesModule = (services: AirlinesServicesInterface) => {
-  const listAirlines: ListAirlinesInterface = async ({
+  const listAirlines = async ({
     onSuccess,
     onError,
   }: {
@@ -25,7 +19,7 @@ export const buildAirlinesModule = (services: AirlinesServicesInterface) => {
     }
   }
 
-  const addAirline: AddAirlinesInterface = async ({
+  const addAirline = async ({
     onSuccess,
     onError,
     payload,
@@ -38,7 +32,6 @@ export const buildAirlinesModule = (services: AirlinesServicesInterface) => {
   }) => {
     try {
       const createdAirline = await services.createAirline(payload.newAirline)
-      console.log("new airline created: ", createdAirline.id)
       onSuccess(createdAirline)
     } catch (e: unknown) {
       console.log(e)

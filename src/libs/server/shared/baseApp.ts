@@ -1,9 +1,11 @@
-import Fastify from "fastify"
+import Fastify, { FastifyServerOptions } from "fastify"
 
-function buildServer() {
-  const server = Fastify({
+function buildServer(
+  baseConfig: FastifyServerOptions = {
     logger: true,
-  })
+  }
+) {
+  const server = Fastify(baseConfig)
 
   return server
 }

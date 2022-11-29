@@ -10,9 +10,9 @@ export function buildApp() {
     return { status: "ok" }
   })
 
-  const airlinesModule = buildAirlinesModule(airlinesServices)
-  const airlinesPlugin = airlinesRoutes(airlinesModule)
-  app.register(airlinesPlugin, { prefix: "/api/airlines" })
+  app.register(airlinesRoutes(buildAirlinesModule(airlinesServices)), {
+    prefix: "/api/airlines",
+  })
 
   return app
 }
