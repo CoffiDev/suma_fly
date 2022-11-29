@@ -18,7 +18,6 @@ model Airlines {
 }
 
 model Airport {
-//IATA_CODE,AIRPORT,CITY,STATE,COUNTRY,LATITUDE,LONGITUDE
   id   Int    @id @default(autoincrement())
   uuid String @unique @default(uuid())
   iataCode String
@@ -28,4 +27,40 @@ model Airport {
   country String
   latitude Float
   longitude Float
+}
+
+model Flights {
+  id   Int    @id @default(autoincrement())
+  uuid String @unique @default(uuid())
+  year Int
+  month Int
+  day Int
+  dayOfWeek Int
+  airline String
+  flightNumber Int
+  tailNumber String
+  originAirport String
+  destinationAirport String
+  scheduledDeparture Int
+  departureTime Int
+  departureDelay Int
+  taxiOut Int
+  wheelsOff Int
+  scheduledTime Int
+  elapsedTime Int
+  airTime Int
+  distance Int
+  wheelsOn Int
+  taxiIn Int
+  scheduledArrival Int
+  arrivalTime Int
+  arrivalDelay Int
+  diverted Int
+  cancelled Int
+  cancellationReason String
+  airSystemDelay Int
+  securityDelay Int
+  airlineDelay Int
+  lateAircraftDelay Int
+  weatherDelay Int
 }
