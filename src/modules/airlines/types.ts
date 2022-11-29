@@ -1,5 +1,5 @@
 export type Airline = {
-  id: string
+  id: number
   iataCode: string
   airline: string
 }
