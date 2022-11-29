@@ -1,0 +1,31 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Airlines {
+  id   Int    @id @default(autoincrement())
+  uuid String @unique @default(uuid())
+  iataCode String
+  airline String
+}
+
+model Airport {
+//IATA_CODE,AIRPORT,CITY,STATE,COUNTRY,LATITUDE,LONGITUDE
+  id   Int    @id @default(autoincrement())
+  uuid String @unique @default(uuid())
+  iataCode String
+  airport String
+  city String
+  state String
+  country String
+  latitude Float
+  longitude Float
+}
