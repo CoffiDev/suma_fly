@@ -1,9 +1,4 @@
-import { PrismaClient } from "@prisma/client"
-
-const prisma = new PrismaClient()
-
-async function main() {
-  const data = `IATA_CODE,AIRPORT,CITY,STATE,COUNTRY,LATITUDE,LONGITUDE
+IATA_CODE,AIRPORT,CITY,STATE,COUNTRY,LATITUDE,LONGITUDE
 ABE,Lehigh Valley International Airport,Allentown,PA,USA,40.65236,-75.44040
 ABI,Abilene Regional Airport,Abilene,TX,USA,32.41132,-99.68190
 ABQ,Albuquerque International Sunport,Albuquerque,NM,USA,35.04022,-106.60919
@@ -325,54 +320,4 @@ WRG,Wrangell Airport,Wrangell,AK,USA,56.48433,-132.36982
 WYS,Westerly State Airport,West Yellowstone,MT,USA,44.68840,-111.11764
 XNA,Northwest Arkansas Regional Airport,Fayetteville/Springdale/Rogers,AR,USA,36.28187,-94.30681
 YAK,Yakutat Airport,Yakutat,AK,USA,59.50336,-139.66023
-YUM,Yuma International Airport,Yuma,AZ,USA,32.65658,-114.60597`
-    .split("\n")
-    .slice(1)
-    .map((x) => {
-      const [iataCode, airport, city, state, country, latitude, longitude] =
-        x.split(",")
-
-      const l = parseFloat(latitude || "0")
-      const lo = parseFloat(longitude || "0")
-
-      if (isNaN(l) || isNaN(lo)) {
-        console.log(
-          "NaaaaN: ,",
-          iataCode,
-          airport,
-          city,
-          state,
-          country,
-          latitude,
-          longitude
-        )
-      }
-
-      return {
-        iataCode,
-        airport,
-        city,
-        state,
-        country,
-        latitude: l,
-        longitude: lo,
-      }
-    })
-
-  const result = await prisma.airport.createMany({
-    data: data.map((a) => {
-      return a
-    }),
-  })
-  console.log(result)
-}
-
-main()
-  .then(async () => {
-    await prisma.$disconnect()
-  })
-  .catch(async (e) => {
-    console.error(e)
-    await prisma.$disconnect()
-    process.exit(1)
-  })
+YUM,Yuma International Airport,Yuma,AZ,USA,32.65658,-114.60597
