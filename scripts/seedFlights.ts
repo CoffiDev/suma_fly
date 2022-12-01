@@ -107,7 +107,7 @@ async function processLineByLine() {
     batch.push(row)
 
     if(batch.length === batchLengthToSave) {
-      console.log(counter + '- ' + (new Date().getTime() - startTime).toLocaleString() + 'ms')
+      console.log(counter.toLocaleString() + '- ' + (new Date().getTime() - startTime).toLocaleString() + 'ms')
 
       await prisma.flights.createMany({ data: batch})
 

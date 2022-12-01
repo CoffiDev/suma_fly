@@ -41,7 +41,8 @@ test("list empty airlines", async (t) => {
 test("list all airlines", async (t) => {
   const initialAirlines = [
     {
-      id: "1",
+      id: 1,
+      uuid: "random-uuid",
       iataCode: "UA",
       airline: "United Air Lines Inc.",
     },
@@ -59,7 +60,13 @@ test("list all airlines", async (t) => {
   })
 
   t.equal(response.statusCode, 200, "status 200")
-  t.same(response.json(), initialAirlines, "empty list")
+  t.same(response.json(), [
+    {
+      uuid: "random-uuid",
+      iataCode: "UA",
+      airline: "United Air Lines Inc.",
+    },
+  ], "no empty list, without id")
 })
 
 test("add new airline", async (t) => {
@@ -82,8 +89,11 @@ test("add new airline", async (t) => {
     payload: newAirline,
   })
 
+  const created = create.json()
+
   t.equal(create.statusCode, 201, "status 201")
-  t.type(create.json().id, "string", "response has id")
+  t.type(created.uuid, "string", "response has uuid")
+  t.type(created.id, "number", "response has id number")
 
   const list = await app.inject({
     method: "GET",
@@ -91,5 +101,8 @@ test("add new airline", async (t) => {
   })
 
   t.equal(list.statusCode, 200, "status 200")
-  t.same(list.json(), [create.json()], "empty list")
+  t.same(list.json(), [{
+    uuid: created.uuid,
+    ...newAirline
+  }], "empty list")
 })

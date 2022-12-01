@@ -1,16 +1,29 @@
-import { Airline, AirlineId, NewAirline } from "@/modules/airlines/types"
+import {
+  Airline,
+  AirlineUpdate,
+  AirlineUUID,
+  NewAirline,
+  PublicAirline,
+} from "@/modules/airlines/types"
 
 export type AirlinesServicesInterface = {
-  queryAirlines: () => Promise<Airline[]>
+  queryAirlines: () => Promise<PublicAirline[]>
 
   createAirline: (airline: NewAirline) => Promise<Airline>
 
-  removeAirline: (airlineId: AirlineId) => Promise<{ found: boolean }>
+  removeAirline: (airlineId: AirlineUUID) => Promise<{ found: boolean }>
 
   changeAirline: (params: {
-    update: Airline
-    id: AirlineId
+    update: AirlineUpdate
+    uuid: AirlineUUID
   }) => Promise<
     { found: true; airline: Airline } | { found: false; airline: null }
   >
 }
+
+/*
+Available built-in reporters: classic doc dot dump json
+                         jsonstream landing list markdown min nyan progress
+                         silent spec tap xunit base specy terse
+
+ */

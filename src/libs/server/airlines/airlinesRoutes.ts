@@ -22,19 +22,19 @@ export const airlinesRoutes = (
       return { status: "ok" }
     })
 
-    server.delete("/:id", (req: Req, reply: Rep) =>
+    server.delete("/:uuid", (req: Req, reply: Rep) =>
       airlinesModule.deleteAirline({
-        payload: { id: (req.params as any).id },
+        payload: { uuid: (req.params as any).uuid },
         onSuccess: replyOkWithMessage(reply, "deleted"),
         onError: badRequestWithMessage(reply),
         onNotFound: idNotFound(reply),
       })
     )
 
-    server.put("/:id", (req: Req, reply: Rep) =>
+    server.put("/:uuid", (req: Req, reply: Rep) =>
       airlinesModule.updateAirline({
         payload: {
-          id: (req.params as any).id,
+          uuid: (req.params as any).uuid,
           update: req.body as Airline,
         },
         onSuccess: replyOkWithMessage(reply, "updated"),

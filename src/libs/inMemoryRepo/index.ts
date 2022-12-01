@@ -1,28 +1,30 @@
-export const inMemoryRepo = <T>(initialRepo: (T & { id: string })[] = []) => {
+export const inMemoryRepo = <T extends {id: number, uuid: string}>(initialRepo: (T)[] = []) => {
   const repo = [...initialRepo]
 
   const getAll = async () => repo
 
-  const create = async (item: T) => {
-    const id = Math.random().toString()
-    const n = { ...item, id }
-    repo.push(n)
+  const create = async (item: Omit<T, "id" | "uuid">) => {
+    const id = repo.length + 1
+    const uuid = Math.round(Math.random() * 8).toString() // fake uuid
+
+    const n = { ...item, id, uuid }
+    repo.push(n as T)
     return n
   }
 
-  const remove = async (id: string) => {
-    const a = repo.findIndex(({ id: aid }) => id === aid)
+  const remove = async (uuid: string) => {
+    const itemIndex = repo.findIndex(({ uuid: itemUUID }) => uuid === itemUUID)
 
-    if (a < 0) {
+    if (itemIndex < 0) {
       return { found: false }
     } else {
-      repo.splice(a, 1)
+      repo.splice(itemIndex, 1)
       return { found: true }
     }
   }
 
-  const update = async (id: string, update: T) => {
-    const index = repo.findIndex(({ id: aid }) => id === aid)
+  const update = async (uuid: string, update: T) => {
+    const index = repo.findIndex(({ uuid: itemUUID }) => uuid === itemUUID)
 
     if (index < 0) {
       return { found: false, item: null } as const

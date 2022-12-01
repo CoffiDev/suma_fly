@@ -1,30 +1,33 @@
 import { PrismaClient, Prisma } from "@prisma/client"
 
-import { Airline, AirlineId, NewAirline } from "@/modules/airlines/types"
+import {
+  Airline,
+  AirlineUpdate,
+  AirlineUUID,
+  NewAirline,
+} from "@/modules/airlines/types"
 import { AirlinesServicesInterface } from "@/modules/airlines/servicesInterface"
 
 const prisma = new PrismaClient()
+
+const NotFoundPrismaErrorCode = "P2025"
 
 export const buildPrismaRepo = (): Pick<
   AirlinesServicesInterface,
   "createAirline" | "changeAirline" | "queryAirlines" | "removeAirline"
 > => {
   return {
-    async changeAirline(params: { update: Airline; id: AirlineId }) {
+    async changeAirline(params: { update: AirlineUpdate; uuid: AirlineUUID }) {
       try {
-        console.log("wuuut", params.update, params.id)
-
         const airline = await prisma.airlines.update({
-          where: { id: parseInt(params.id) },
+          where: { uuid: params.uuid },
           data: params.update,
         })
 
-        return { found: true, airline: {} as any }
+        return { found: true, airline: airline }
       } catch (e) {
-        console.log(e)
-
         if (e instanceof Prisma.PrismaClientKnownRequestError) {
-          if (e.code === "P2025") {
+          if (e.code === NotFoundPrismaErrorCode) {
             return { found: false, airline: null }
           }
         }
@@ -37,15 +40,22 @@ export const buildPrismaRepo = (): Pick<
       })
     },
     async queryAirlines() {
-      return await prisma.airlines.findMany()
+      return await prisma.airlines.findMany({
+        select: {
+          uuid: true,
+          id: false,
+          airline: true,
+          iataCode: true,
+        },
+      })
     },
-    async removeAirline(airlineId: AirlineId): Promise<{ found: boolean }> {
+    async removeAirline(airlineUUID: AirlineUUID): Promise<{ found: boolean }> {
       try {
-        await prisma.airlines.delete({ where: { id: parseInt(airlineId) } })
+        await prisma.airlines.delete({ where: { uuid: airlineUUID } })
         return { found: true }
       } catch (e) {
         if (e instanceof Prisma.PrismaClientKnownRequestError) {
-          if (e.code === "P2025") {
+          if (e.code === NotFoundPrismaErrorCode) {
             return { found: false }
           }
         }

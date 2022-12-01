@@ -1,5 +1,5 @@
 import { AirlinesServicesInterface } from "@/modules/airlines/servicesInterface"
-import { Airline, AirlineId, NewAirline } from "@/modules/airlines/types"
+import { Airline, AirlineUUID, NewAirline, PublicAirline } from "@/modules/airlines/types";
 
 export const buildAirlinesModule = (services: AirlinesServicesInterface) => {
   const listAirlines = async ({
@@ -7,7 +7,7 @@ export const buildAirlinesModule = (services: AirlinesServicesInterface) => {
     onError,
   }: {
     payload: {}
-    onSuccess: (airlines: Airline[]) => void
+    onSuccess: (airlines: PublicAirline[]) => void
     onError: (e: Error) => void
   }) => {
     try {
@@ -27,7 +27,7 @@ export const buildAirlinesModule = (services: AirlinesServicesInterface) => {
     payload: {
       newAirline: NewAirline
     }
-    onSuccess: (newAirline: Airline) => void
+    onSuccess: (newAirline: PublicAirline) => void
     onError: (e: Error) => void
   }) => {
     try {
@@ -46,19 +46,19 @@ export const buildAirlinesModule = (services: AirlinesServicesInterface) => {
     onError,
   }: {
     payload: {
-      id: AirlineId
+      uuid: AirlineUUID
     }
     onSuccess: () => void
     onError: (e: Error) => void
-    onNotFound: (id: AirlineId) => void
+    onNotFound: (id: AirlineUUID) => void
   }) => {
     try {
-      const { found } = await services.removeAirline(payload.id)
+      const { found } = await services.removeAirline(payload.uuid)
 
       if (found) {
         onSuccess()
       } else {
-        onNotFound(payload.id)
+        onNotFound(payload.uuid)
       }
     } catch (e: unknown) {
       console.log(e)
@@ -73,12 +73,12 @@ export const buildAirlinesModule = (services: AirlinesServicesInterface) => {
     onNotFound,
   }: {
     payload: {
-      id: AirlineId
+      uuid: AirlineUUID
       update: Airline
     }
     onSuccess: (updatedAirline: Airline) => void
     onError: (e: Error) => void
-    onNotFound: (id: AirlineId) => void
+    onNotFound: (id: AirlineUUID) => void
   }) => {
     try {
       const { found, airline } = await services.changeAirline(payload)
@@ -86,7 +86,7 @@ export const buildAirlinesModule = (services: AirlinesServicesInterface) => {
       if (found) {
         onSuccess(airline)
       } else {
-        onNotFound(payload.id)
+        onNotFound(payload.uuid)
       }
     } catch (e: unknown) {
       console.log(e)

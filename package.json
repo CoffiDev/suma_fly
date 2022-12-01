@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "tsnd --respawn --transpile-only --exit-child -r tsconfig-paths/register src/libs/server/index.ts",
     "test": "tap --ts",
-    "west": "tap --watch --ts --no-coverage-report --no-check-coverage"
+    "west": "tap --watch --ts --no-coverage-report --no-check-coverage",
+    "tapPrisma": "tap --ts --no-coverage-report --no-check-coverage -Rspec src/libs/prismaRepo/*/tests"
   },
   "keywords": [],
   "author": "",
@@ -15,6 +16,8 @@
     "@types/node": "^18.11.9",
     "@types/tap": "^15.0.7",
     "csv-parse": "^5.3.3",
+    "dotenv": "^16.0.3",
+    "dotenv-cli": "^6.0.0",
     "prettier": "2.8.0",
     "prisma": "^4.6.1",
     "tap": "^16.3.2",
