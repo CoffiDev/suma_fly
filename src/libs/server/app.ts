@@ -1,7 +1,5 @@
 import baseApp from "@/libs/server/shared/baseApp"
-import { airlinesRoutes } from "./airlines/airlinesRoutes"
-import { buildAirlinesModule } from "@/modules/airlines"
-import { airlinesServices } from "@/libs/server/airlines/airlinesServices"
+import { airlinesApp } from "@/libs/server/airlines/airlinesApp"
 
 export function buildApp() {
   const app = baseApp()
@@ -10,9 +8,7 @@ export function buildApp() {
     return { status: "ok" }
   })
 
-  app.register(airlinesRoutes(buildAirlinesModule(airlinesServices)), {
-    prefix: "/api/airlines",
-  })
+  app.register(airlinesApp, { prefix: "/api/airlines" })
 
   return app
 }

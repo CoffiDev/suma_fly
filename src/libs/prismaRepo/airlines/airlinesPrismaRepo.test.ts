@@ -5,10 +5,9 @@ dotenv.config({
   path: path.join(process.cwd(), "./env.test"),
 })
 
-import { test, pass, beforeEach } from "tap"
-import { buildPrismaRepo } from "@/libs/prismaRepo/airlines"
+import { test, beforeEach } from "tap"
+import { buildPrismaRepo } from "@/libs/prismaRepo/airlines/airlinePrismaRepo"
 import { PrismaClient } from "@prisma/client"
-import { Airline } from "@/modules/airlines/types"
 
 const prisma = new PrismaClient()
 const repo = buildPrismaRepo()

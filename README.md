@@ -1,5 +1,13 @@
 ## Project setup
 
+### Install docker and docker compose (optional)
+
+We use docker and docker compose to provide an easier setup
+
+### Install pnpm
+
+refer to https://pnpm.io/installation
+
 ### Start DB with docker (optional)
 
 If you do not have a running postgres instance, or you want to 
@@ -19,7 +27,7 @@ This is also required to generate the prisma client dependencies
 
 ### Start dev server
 
-`pnpm dev`
+`make start_dev_server`
 
 ### Run and watch tests (optional)
 

@@ -1,15 +1,19 @@
-import { test, pass } from "tap"
+import { test } from "tap"
 
 import baseApp from "@/libs/server/shared/baseApp"
-import { buildMockRoutes } from "@/libs/server/airlines/tests/airlineRoutesMockService"
 import { Airline } from "@/modules/airlines/types"
+import { airlinesRoutes } from "@/libs/server/airlines/airlinesRoutes"
+import { buildAirlinesModule } from "@/modules/airlines"
+import { buildMemoryRepo } from "@/libs/memoryRepo/airlines/airlineMemoryRepo"
 
-pass("this is fine")
+const buildMockApp = (initialRepo: Airline[] = []) => {
+  return airlinesRoutes(buildAirlinesModule(buildMemoryRepo(initialRepo)))
+}
 
 test("check healtheck", async (t) => {
   const app = baseApp({})
 
-  app.register(buildMockRoutes([]), {
+  app.register(buildMockApp([]), {
     prefix: "/api/airlines",
   })
 
@@ -25,7 +29,7 @@ test("check healtheck", async (t) => {
 test("list empty airlines", async (t) => {
   const app = baseApp({})
 
-  app.register(buildMockRoutes([]), {
+  app.register(buildMockApp([]), {
     prefix: "/api/airlines",
   })
 
@@ -50,7 +54,7 @@ test("list all airlines", async (t) => {
 
   const app = baseApp({})
 
-  app.register(buildMockRoutes(initialAirlines), {
+  app.register(buildMockApp(initialAirlines), {
     prefix: "/api/airlines",
   })
 
@@ -60,13 +64,17 @@ test("list all airlines", async (t) => {
   })
 
   t.equal(response.statusCode, 200, "status 200")
-  t.same(response.json(), [
-    {
-      uuid: "random-uuid",
-      iataCode: "UA",
-      airline: "United Air Lines Inc.",
-    },
-  ], "no empty list, without id")
+  t.same(
+    response.json(),
+    [
+      {
+        uuid: "random-uuid",
+        iataCode: "UA",
+        airline: "United Air Lines Inc.",
+      },
+    ],
+    "no empty list, without id"
+  )
 })
 
 test("add new airline", async (t) => {
@@ -74,7 +82,7 @@ test("add new airline", async (t) => {
 
   const app = baseApp({})
 
-  app.register(buildMockRoutes(initialAirlines), {
+  app.register(buildMockApp(initialAirlines), {
     prefix: "/api/airlines",
   })
 
@@ -101,8 +109,14 @@ test("add new airline", async (t) => {
   })
 
   t.equal(list.statusCode, 200, "status 200")
-  t.same(list.json(), [{
-    uuid: created.uuid,
-    ...newAirline
-  }], "empty list")
+  t.same(
+    list.json(),
+    [
+      {
+        uuid: created.uuid,
+        ...newAirline,
+      },
+    ],
+    "empty list"
+  )
 })

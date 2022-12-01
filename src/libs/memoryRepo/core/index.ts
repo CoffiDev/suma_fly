@@ -1,4 +1,6 @@
-export const inMemoryRepo = <T extends {id: number, uuid: string}>(initialRepo: (T)[] = []) => {
+export const inMemoryRepo = <T extends { id: number; uuid: string }>(
+  initialRepo: T[] = []
+) => {
   const repo = [...initialRepo]
 
   const getAll = async () => repo
@@ -23,7 +25,10 @@ export const inMemoryRepo = <T extends {id: number, uuid: string}>(initialRepo: 
     }
   }
 
-  const update = async (uuid: string, update: T) => {
+  const update = async (
+    uuid: string,
+    update: Partial<Omit<T, "id" | "uuid">>
+  ) => {
     const index = repo.findIndex(({ uuid: itemUUID }) => uuid === itemUUID)
 
     if (index < 0) {
