@@ -18,6 +18,7 @@ const mockRepo: AirlinesServicesInterface = {
   removeAirline: async (_id) => {
     return { found: false }
   },
+  queryAirlinesLimited: async () => ({ rows: [], nextOffsetToken: null }),
 }
 
 const buildMockApp = (initialRepo: Airline[] = []) => {
@@ -106,6 +107,100 @@ test("GET /all", async (t) => {
       ],
       "no empty list, without id"
     )
+  })
+})
+
+test("GET /", async (t) => {
+  t.test("list airlines with empty params", async (t) => {
+    const app = baseApp({})
+
+    app.register(
+      airlinesRoutes(
+        buildAirlinesModule({
+          ...mockRepo,
+          queryAirlinesLimited: async () => ({
+            rows: [],
+            nextOffsetToken: "sometoken",
+          }),
+        })
+      ),
+      registerConfig
+    )
+
+    const response = await app.inject({
+      method: "GET",
+      url: "/api/airlines/",
+    })
+
+    t.equal(response.statusCode, 200, "status 200")
+    t.match(response.json(), { airlines: Array, next: { start: String } })
+  })
+
+  t.test("list airlines with params", async (t) => {
+    const app = baseApp({})
+
+    app.register(
+      airlinesRoutes(
+        buildAirlinesModule({
+          ...mockRepo,
+          queryAirlinesLimited: async () => ({
+            rows: [],
+            nextOffsetToken: "sometoken",
+          }),
+        })
+      ),
+      registerConfig
+    )
+
+    const responseWithLimit = await app.inject({
+      method: "GET",
+      url: "/api/airlines/?limit=30",
+    })
+
+    t.equal(responseWithLimit.statusCode, 200, "with limit status is 200")
+    t.match(responseWithLimit.json(), {
+      airlines: Array,
+      next: { start: String },
+    })
+
+    const responseWithStart = await app.inject({
+      method: "GET",
+      url: "/api/airlines/?start=sometoken",
+    })
+
+    t.equal(responseWithStart.statusCode, 200, "with start status is 200")
+    t.match(responseWithStart.json(), {
+      airlines: Array,
+      next: { start: String },
+    })
+  })
+
+  t.test("list airlines with unknown params", async (t) => {
+    const app = baseApp({})
+
+    app.register(
+      airlinesRoutes(
+        buildAirlinesModule({
+          ...mockRepo,
+          queryAirlinesLimited: async () => ({
+            rows: [],
+            nextOffsetToken: "sometoken",
+          }),
+        })
+      ),
+      registerConfig
+    )
+
+    const responseWithMax = await app.inject({
+      method: "GET",
+      url: "/api/airlines/?max=30",
+    })
+
+    t.equal(responseWithMax.statusCode, 200, "with max status is 200")
+    t.match(responseWithMax.json(), {
+      airlines: Array,
+      next: { start: String },
+    })
   })
 })
 

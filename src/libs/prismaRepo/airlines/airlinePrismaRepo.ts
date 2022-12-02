@@ -8,7 +8,6 @@ import {
   PublicAirline,
 } from "@/modules/airlines/types"
 import { AirlinesServicesInterface } from "@/modules/airlines/servicesInterface"
-import { undefined } from "zod"
 
 const prisma = new PrismaClient()
 

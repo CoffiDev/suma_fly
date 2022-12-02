@@ -12,7 +12,11 @@ export const buildMemoryRepo = (
   initialRepo: Airline[] = []
 ): Pick<
   AirlinesServicesInterface,
-  "createAirline" | "changeAirline" | "queryAirlines" | "removeAirline"
+  | "createAirline"
+  | "changeAirline"
+  | "queryAirlines"
+  | "removeAirline"
+  | "queryAirlinesLimited"
 > => {
   const repo = inMemoryRepo<Airline>(initialRepo)
 
@@ -41,6 +45,17 @@ export const buildMemoryRepo = (
     },
     removeAirline(airlineUUID: AirlineUUID): Promise<{ found: boolean }> {
       return repo.remove(airlineUUID)
+    },
+    async queryAirlinesLimited(limit) {
+      const result = await repo.getAll()
+      const rows = result
+        .map((result) => {
+          const { id, ...airline } = result
+          return airline
+        })
+        .slice(0, limit)
+
+      return { rows, nextOffsetToken: null }
     },
   }
 }

@@ -57,11 +57,11 @@ export const airlinesRoutes = (
       url: "/",
       schema: {
         querystring: z.object({
-          nextOffsetToken: z.string().nullable().default(null),
+          start: z.string().nullable().default(null),
           limit: z.preprocess((input) => {
             const str = z.string().default("").parse(input)
             const num = parseInt(str)
-            return isNaN(num) ? null : num
+            return isNaN(num) ? undefined : num
           }, z.number().nonnegative().default(10)),
         }),
         response: {
@@ -77,7 +77,7 @@ export const airlinesRoutes = (
         airlinesModule.listAirlinesLimited({
           payload: {
             limit: req.query.limit,
-            offsetToken: req.query.nextOffsetToken,
+            offsetToken: req.query.start,
           },
           onError: badRequestWithMessage(reply),
           onSuccess: ({ airlines, nextOffsetToken }) => {
