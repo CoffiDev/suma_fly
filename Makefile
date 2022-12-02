@@ -15,7 +15,7 @@ test_unit_watch:
 setup_dev_prisma:
 	npx prisma migrate dev
 
-setup_test_prisma:
+test_prisma_setup:
 	docker-compose up -d
 	npx dotenv -e .env.test npx prisma migrate dev
 
