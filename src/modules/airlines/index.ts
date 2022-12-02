@@ -20,8 +20,31 @@ export const buildAirlinesModule = (services: AirlinesServicesInterface) => {
       const airlines = await services.queryAirlines()
       onSuccess(airlines)
     } catch (e: unknown) {
-      console.log(e)
       onError(new Error("An error occurred. Try again latter."))
+    }
+  }
+
+  const listAirlinesLimited = async ({
+    payload,
+    onSuccess,
+    onError,
+  }: {
+    payload: {
+      limit: number
+      offsetToken: string | null
+    }
+    onSuccess: (response: {
+      airlines: PublicAirline[]
+      nextOffsetToken: string | null
+    }) => void
+    onError: (e: Error) => void
+  }) => {
+    try {
+      const { rows: airlines, nextOffsetToken } =
+        await services.queryAirlinesLimited(payload.limit, payload.offsetToken)
+      onSuccess({ airlines, nextOffsetToken })
+    } catch (e: unknown) {
+      onError(new Error("An error occurred"))
     }
   }
 
@@ -40,7 +63,6 @@ export const buildAirlinesModule = (services: AirlinesServicesInterface) => {
       const createdAirline = await services.createAirline(payload.newAirline)
       onSuccess(createdAirline)
     } catch (e: unknown) {
-      console.log(e)
       onError(new Error("An error occurred"))
     }
   }
@@ -105,5 +127,6 @@ export const buildAirlinesModule = (services: AirlinesServicesInterface) => {
     updateAirline,
     deleteAirline,
     listAirlines,
+    listAirlinesLimited,
   }
 }

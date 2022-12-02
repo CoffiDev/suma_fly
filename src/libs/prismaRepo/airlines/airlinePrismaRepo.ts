@@ -5,8 +5,10 @@ import {
   AirlineUpdate,
   AirlineUUID,
   NewAirline,
+  PublicAirline,
 } from "@/modules/airlines/types"
 import { AirlinesServicesInterface } from "@/modules/airlines/servicesInterface"
+import { undefined } from "zod"
 
 const prisma = new PrismaClient()
 
@@ -14,8 +16,19 @@ const NotFoundPrismaErrorCode = "P2025"
 
 export const buildPrismaRepo = (): Pick<
   AirlinesServicesInterface,
-  "createAirline" | "changeAirline" | "queryAirlines" | "removeAirline"
+  | "createAirline"
+  | "changeAirline"
+  | "queryAirlines"
+  | "removeAirline"
+  | "queryAirlinesLimited"
 > => {
+  const selectPublicAirline = {
+    uuid: true as const,
+    id: false as const,
+    airline: true as const,
+    iataCode: true as const,
+  }
+
   return {
     async changeAirline(params: { update: AirlineUpdate; uuid: AirlineUUID }) {
       try {
@@ -41,13 +54,37 @@ export const buildPrismaRepo = (): Pick<
     },
     async queryAirlines() {
       return await prisma.airlines.findMany({
-        select: {
-          uuid: true,
-          id: false,
-          airline: true,
-          iataCode: true,
-        },
+        select: selectPublicAirline,
       })
+    },
+    async queryAirlinesLimited(take, offsetToken) {
+      const baseQuery = {
+        select: selectPublicAirline,
+        take,
+        orderBy: [
+          {
+            id: "asc" as const,
+          },
+        ],
+      }
+
+      let rows: PublicAirline[]
+
+      if (offsetToken) {
+        rows = await prisma.airlines.findMany({
+          ...baseQuery,
+          skip: 1,
+          cursor: {
+            uuid: offsetToken,
+          },
+        })
+      } else {
+        rows = await prisma.airlines.findMany(baseQuery)
+      }
+
+      const nextOffsetToken = rows[take - 1]?.uuid ?? null
+
+      return { rows, nextOffsetToken }
     },
     async removeAirline(airlineUUID: AirlineUUID): Promise<{ found: boolean }> {
       try {

@@ -9,6 +9,11 @@ import {
 export type AirlinesServicesInterface = {
   queryAirlines: () => Promise<PublicAirline[]>
 
+  queryAirlinesLimited: (
+    limit: number,
+    offsetToken: string | null
+  ) => Promise<{ rows: PublicAirline[]; nextOffsetToken: string | null }>
+
   createAirline: (airline: NewAirline) => Promise<Airline>
 
   removeAirline: (airlineId: AirlineUUID) => Promise<{ found: boolean }>

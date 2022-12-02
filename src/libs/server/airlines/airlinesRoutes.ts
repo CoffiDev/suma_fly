@@ -53,6 +53,46 @@ export const airlinesRoutes = (
     })
 
     server.withTypeProvider<ZodTypeProvider>().route({
+      method: "GET",
+      url: "/",
+      schema: {
+        querystring: z.object({
+          nextOffsetToken: z.string().nullable().default(null),
+          limit: z.preprocess((input) => {
+            const str = z.string().default("").parse(input)
+            const num = parseInt(str)
+            return isNaN(num) ? null : num
+          }, z.number().nonnegative().default(10)),
+        }),
+        response: {
+          200: z.object({
+            airlines: z.array(publicAirlineSchema),
+            next: z.object({
+              start: z.string().nullable(),
+            }),
+          }),
+        },
+      },
+      handler(req, reply) {
+        airlinesModule.listAirlinesLimited({
+          payload: {
+            limit: req.query.limit,
+            offsetToken: req.query.nextOffsetToken,
+          },
+          onError: badRequestWithMessage(reply),
+          onSuccess: ({ airlines, nextOffsetToken }) => {
+            reply.code(200).send({
+              airlines,
+              next: {
+                start: nextOffsetToken,
+              },
+            })
+          },
+        })
+      },
+    })
+
+    server.withTypeProvider<ZodTypeProvider>().route({
       method: "POST",
       url: "/",
       schema: {

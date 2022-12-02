@@ -15,6 +15,7 @@ const repo = buildPrismaRepo()
 beforeEach(async () => {
   try {
     await prisma.$executeRawUnsafe(`TRUNCATE TABLE "Airlines" CASCADE;`)
+    // console.log("---- truncated table")
   } catch (error) {
     console.log({ error })
   }
@@ -49,6 +50,26 @@ test("repo", async (t) => {
         "query has one result with required fields"
       )
     })
+  })
+
+  t.test("queryAirlinesLimited", async (t) => {
+    await prisma.airlines.createMany({
+      data: Array(25)
+        .fill(0)
+        .map((x, i) => ({ airline: "some" + i, iataCode: "some" })),
+    })
+
+    const page1 = await repo.queryAirlinesLimited(10, null)
+    t.equal(page1.rows.length, 10, "page 1 has limit len")
+    t.match(page1.nextOffsetToken, String, "next token is sting")
+
+    const page2 = await repo.queryAirlinesLimited(10, page1.nextOffsetToken)
+    t.equal(page2.rows.length, 10, "page 2 has limit len")
+    t.match(page2.nextOffsetToken, String, "next token is sting")
+
+    const page3 = await repo.queryAirlinesLimited(10, page2.nextOffsetToken)
+    t.equal(page3.rows.length, 5, "page 2 has remaining len")
+    t.equal(page3.nextOffsetToken, null, "next token is null")
   })
 
   t.test("createAirline", async (t) => {
