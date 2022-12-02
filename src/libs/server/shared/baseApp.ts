@@ -1,4 +1,8 @@
 import Fastify, { FastifyServerOptions } from "fastify"
+import {
+  serializerCompiler,
+  validatorCompiler,
+} from "fastify-type-provider-zod"
 
 function buildServer(
   baseConfig: FastifyServerOptions = {
@@ -6,6 +10,9 @@ function buildServer(
   }
 ) {
   const server = Fastify(baseConfig)
+
+  server.setValidatorCompiler(validatorCompiler)
+  server.setSerializerCompiler(serializerCompiler)
 
   return server
 }

@@ -5,7 +5,7 @@ export const badRequestWithMessage = (reply: FastifyReply) => (e: Error) => {
 }
 
 export const idNotFound = (reply: FastifyReply) => (id: string) => {
-  reply.code(404).send()
+  reply.code(404).send({ message: `id ${id} not found` })
 }
 
 export const replyOk =
@@ -17,8 +17,6 @@ export const replyOk =
 export const replyOkWithMessage =
   <T>(reply: FastifyReply, message: string) =>
   (payload?: T) => {
-    console.log("waaaa")
-
     reply.code(200).send({ message })
   }
 

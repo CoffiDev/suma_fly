@@ -5,6 +5,20 @@ import { Airline } from "@/modules/airlines/types"
 import { airlinesRoutes } from "@/libs/server/airlines/airlinesRoutes"
 import { buildAirlinesModule } from "@/modules/airlines"
 import { buildMemoryRepo } from "@/libs/memoryRepo/airlines/airlineMemoryRepo"
+import { AirlinesServicesInterface } from "@/modules/airlines/servicesInterface"
+
+const mockRepo: AirlinesServicesInterface = {
+  queryAirlines: async () => [],
+  createAirline: async () => {
+    return { airline: "some", iataCode: "some", id: 1, uuid: "some" }
+  },
+  changeAirline: async (_update) => {
+    return { found: false, airline: null }
+  },
+  removeAirline: async (_id) => {
+    return { found: false }
+  },
+}
 
 const buildMockApp = (initialRepo: Airline[] = []) => {
   return airlinesRoutes(buildAirlinesModule(buildMemoryRepo(initialRepo)))
@@ -29,9 +43,19 @@ test("check healtheck", async (t) => {
 test("list empty airlines", async (t) => {
   const app = baseApp({})
 
-  app.register(buildMockApp([]), {
-    prefix: "/api/airlines",
-  })
+  app.register(
+    airlinesRoutes(
+      buildAirlinesModule({
+        ...mockRepo,
+        queryAirlines: async () => [
+          // { iataCode: "som", airline: "some", uuid: "some", id: 1 },
+        ],
+      })
+    ),
+    {
+      prefix: "/api/airlines",
+    }
+  )
 
   const response = await app.inject({
     method: "GET",

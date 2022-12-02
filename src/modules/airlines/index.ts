@@ -1,5 +1,11 @@
 import { AirlinesServicesInterface } from "@/modules/airlines/servicesInterface"
-import { Airline, AirlineUUID, NewAirline, PublicAirline } from "@/modules/airlines/types";
+import {
+  Airline,
+  AirlineUpdate,
+  AirlineUUID,
+  NewAirline,
+  PublicAirline,
+} from "@/modules/airlines/types"
 
 export const buildAirlinesModule = (services: AirlinesServicesInterface) => {
   const listAirlines = async ({
@@ -74,7 +80,7 @@ export const buildAirlinesModule = (services: AirlinesServicesInterface) => {
   }: {
     payload: {
       uuid: AirlineUUID
-      update: Airline
+      update: AirlineUpdate
     }
     onSuccess: (updatedAirline: Airline) => void
     onError: (e: Error) => void

@@ -1,8 +1,4 @@
-import {
-  FastifyInstance,
-  FastifyReply as Rep,
-  FastifyRequest as Req,
-} from "fastify"
+import { FastifyInstance } from "fastify"
 
 import { buildAirlinesModule } from "@/modules/airlines"
 import {
@@ -12,53 +8,124 @@ import {
   replyOk,
   replyOkWithMessage,
 } from "@/libs/server/shared/replies"
-import { Airline, NewAirline } from "@/modules/airlines/types"
+import { ZodTypeProvider } from "fastify-type-provider-zod"
+import z, { string } from "zod"
+import {
+  newAirlineSchema,
+  publicAirlineSchema,
+  updateAirlineSchema,
+} from "@/libs/server/airlines/schemas"
 
 export const airlinesRoutes = (
   airlinesModule: ReturnType<typeof buildAirlinesModule>
 ) => {
   return async function airlinesRoutes(server: FastifyInstance) {
-    server.get("/healthcheck", async function () {
-      return { status: "ok" }
+    server.route({
+      method: "GET",
+      url: "/healthcheck",
+      schema: {
+        response: {
+          200: z.object({
+            status: z.enum(["ok"]),
+          }),
+        },
+      },
+      handler: async function () {
+        return { status: "ok" }
+      },
     })
 
-    server.delete("/:uuid", (req: Req, reply: Rep) =>
-      airlinesModule.deleteAirline({
-        payload: { uuid: (req.params as any).uuid },
-        onSuccess: replyOkWithMessage(reply, "deleted"),
-        onError: badRequestWithMessage(reply),
-        onNotFound: idNotFound(reply),
-      })
-    )
-
-    server.put("/:uuid", (req: Req, reply: Rep) =>
-      airlinesModule.updateAirline({
-        payload: {
-          uuid: (req.params as any).uuid,
-          update: req.body as Airline,
+    server.route({
+      method: "GET",
+      url: "/all",
+      schema: {
+        response: {
+          200: z.array(publicAirlineSchema),
         },
-        onSuccess: replyOkWithMessage(reply, "updated"),
-        onError: badRequestWithMessage(reply),
-        onNotFound: idNotFound(reply),
-      })
-    )
+      },
+      handler(request, reply) {
+        airlinesModule.listAirlines({
+          payload: {},
+          onSuccess: replyOk(reply),
+          onError: badRequestWithMessage(reply),
+        })
+      },
+    })
 
-    server.get("/", (req: Req, reply: Rep) =>
-      airlinesModule.listAirlines({
-        payload: {},
-        onSuccess: replyOk(reply),
-        onError: badRequestWithMessage(reply),
-      })
-    )
-
-    server.post("/", (req: Req, reply: Rep) =>
-      airlinesModule.addAirline({
-        payload: {
-          newAirline: req.body as NewAirline,
+    server.withTypeProvider<ZodTypeProvider>().route({
+      method: "POST",
+      url: "/",
+      schema: {
+        body: newAirlineSchema,
+        response: {
+          201: publicAirlineSchema,
         },
-        onSuccess: replyCreated(reply),
-        onError: badRequestWithMessage(reply),
-      })
-    )
+      },
+      handler(req, reply) {
+        airlinesModule.addAirline({
+          payload: {
+            newAirline: req.body,
+          },
+          onSuccess: replyCreated(reply),
+          onError: badRequestWithMessage(reply),
+        })
+      },
+    })
+
+    server.withTypeProvider<ZodTypeProvider>().route({
+      method: "PUT",
+      url: "/:uuid",
+      schema: {
+        params: z.object({
+          uuid: string(),
+        }),
+        body: updateAirlineSchema,
+        response: {
+          200: z.object({
+            message: z.literal("updated"),
+          }),
+          404: z.object({
+            message: z.string().optional(),
+          }),
+        },
+      },
+      handler(req, reply) {
+        airlinesModule.updateAirline({
+          payload: {
+            uuid: req.params.uuid,
+            update: req.body,
+          },
+          onSuccess: replyOkWithMessage(reply, "updated"),
+          onError: badRequestWithMessage(reply),
+          onNotFound: idNotFound(reply),
+        })
+      },
+    })
+
+    server.withTypeProvider<ZodTypeProvider>().route({
+      method: "DELETE",
+      url: "/:uuid",
+      schema: {
+        params: z.object({
+          uuid: z.string(),
+        }),
+        response: {
+          200: z.object({
+            message: z.literal("deleted"),
+          }),
+          404: z.object({
+            message: z.string().optional(),
+          }),
+        },
+      },
+      handler(req, reply) {
+        airlinesModule.deleteAirline({
+          payload: { uuid: req.params.uuid },
+          onSuccess: replyOkWithMessage(reply, "deleted"),
+          onError: badRequestWithMessage(reply),
+          onNotFound: idNotFound(reply),
+        })
+      },
+    })
   }
 }

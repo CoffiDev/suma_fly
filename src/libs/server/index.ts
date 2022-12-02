@@ -8,9 +8,14 @@ const server = buildApp()
 
 async function main() {
   try {
+    await server.ready()
     await server.listen(PORT, HOST)
 
-    console.log(`Server ready at http://${HOST}:${PORT}`)
+    console.log(` --- Server running at http://${HOST}:${PORT}`)
+
+    console.log(
+      ` --- Documentation running at http://${HOST}:${PORT}/documentation`
+    )
   } catch (e) {
     console.error(e)
     process.exit(1)
