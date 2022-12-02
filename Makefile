@@ -6,6 +6,9 @@ load_seeds:
 	npx ts-node scripts/seedAirports.ts
 	npx ts-node scripts/seedFlights.ts
 
+test_unit:
+	pnpm tapUnit
+
 test_unit_watch:
 	pnpm tapUnit --watch
 
